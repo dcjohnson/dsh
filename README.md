@@ -1,2 +1,5 @@
 # wackadoo
-experimental shell
+
+Syntax:
+
+ 
