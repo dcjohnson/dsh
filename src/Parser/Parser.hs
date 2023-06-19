@@ -1,43 +1,58 @@
 module Parser.Parser
-  (
-    P(..),
-    Tester(..),
-    test,
-    Inst(..)
+  ( execCommand
   ) where
 
 import System.IO
-import Control.Monad
+import Text.ParserCombinators.ReadP
+import Data.Char
 
--- a is the buffer being parsed
--- e is the error
--- r is the result
-data Parser a = Parser a
+indentationParser indentation = do
+  string indentation
 
-instance Functor Parser where
-  fmap f (Parser a) = Parser (f a)
+nameParser = do
+  c <- get
+  if isAlphaNum c || c == '-' || c == '_' || c == '.' || c == '/'
+    then return c
+    else if c == '\\'
+         then get
+         else pfail
+    
 
-instance Applicative Parser where
-  pure a = Parser a
-  (<*>) (Parser f) (Parser a) = Parser (f a)
+endOfExec =
+  choice
+  [ char '|'
+  , char ' '
+  ]
 
-instance Monad Parser where 
-  (>>=) (Parser a) f = f a
-  return = pure
-  (>>) (Parser a) (Parser b) = Parser b
+-- "a string"
+-- 3 # a number
+-- {aVariable}
+execArg = do
+  choice [ between (char '"') (char '"') $ do
+             many1 (do
+                        c <- get
+                        case c of
+                          '\\' -> do
+                            c' <- get
+                            case c' of
+                              '\\' -> return c
+                              '"' -> return c
+                              _ -> pfail
+                          _ -> return c)
+         , munch1 (\c -> isAlphaNum c)
+         , between (char '{') (char '}') $ do
+             munch1 (\c -> isAlphaNum c || c == '_')
+         ]
 
-  
--- pprint :: Parser String e r -> IO ()
--- pprint (Parser a _ _) = putStrLn a
-
-class P a where
-  tprint :: a -> IO ()
-
-data Inst a = Inst a
-instance (Show a) => P (Inst a) where
-  tprint (Inst a) = putStrLn (show a) 
-
-data Tester a = T a
-
-test (T a) = tprint a
-
+execCommand = do
+  char '@'
+  skipSpaces
+  command <- manyTill nameParser endOfExec
+  skipSpaces
+  args <- many (do
+                   arg <- execArg
+                   skipSpaces
+                   return arg)
+  skipSpaces
+  eof
+  return $ (command, args)
