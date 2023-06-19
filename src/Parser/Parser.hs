@@ -1,10 +1,18 @@
 module Parser.Parser
-  ( execCommand
+  ( execCommand,
+    parse
   ) where
 
 import System.IO
 import Text.ParserCombinators.ReadP
 import Data.Char
+import ByteCode.ByteCode
+
+parse :: [String] -> [ByteCode]
+parse (s:_) =
+  case readP_to_S execCommand s of
+    [((command, n), "")] -> [Exec command n]
+    _ -> [InvalidParse]
 
 indentationParser indentation = do
   string indentation
