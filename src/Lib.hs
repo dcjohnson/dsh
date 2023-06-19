@@ -10,7 +10,7 @@ import System.Posix.Terminal as SPT
 import System.Posix.IO.ByteString as SPIB
 import System.Posix.Process as SPP
 import Control.Concurrent
- 
+
 ptyTest :: IO ()
 ptyTest = do
   (m, s) <- SPT.openPseudoTerminal
