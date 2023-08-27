@@ -9,6 +9,7 @@ import Data.Char
 import ByteCode.ByteCode
 
 parse :: [String] -> [ByteCode]
+parse [] = []
 parse (s:_) =
   case readP_to_S execCommand s of
     [((command, n), "")] -> [Exec command n]
@@ -36,7 +37,7 @@ endOfExec =
 -- 3 # a number
 -- {aVariable}
 execArg = do
-  choice [ between (char '"') (char '"') $ do
+  choice [ (between (char '"') (char '"') $ do 
              many1 (do
                         c <- get
                         case c of
@@ -46,10 +47,10 @@ execArg = do
                               '\\' -> return c
                               '"' -> return c
                               _ -> pfail
-                          _ -> return c)
-         , munch1 (\c -> isAlphaNum c)
-         , between (char '{') (char '}') $ do
-             munch1 (\c -> isAlphaNum c || c == '_')
+                          _ -> return c)) >>= (\s -> return $ Str s)
+         , (munch1 (\c -> isDigit c)) >>= (\d -> return $ Num d)
+         , (between (char '{') (char '}') $ do
+             munch1 (\c -> isAlphaNum c || c == '_')) >>= (\v -> return $ Var v)
          ]
 
 execCommand = do
