@@ -33,6 +33,12 @@ endOfExec =
   , char ' '
   ]
 
+endOfExecTmp =
+  choice
+  [ eof
+  , skipMany1 (char ' ')
+  ]
+
 -- "a string"
 -- 3 # a number
 -- {aVariable}
@@ -56,7 +62,7 @@ execArg = do
 execCommand = do
   char '@'
   skipSpaces
-  command <- manyTill nameParser endOfExec
+  command <- manyTill nameParser endOfExecTmp
   skipSpaces
   args <- many (do
                    arg <- execArg

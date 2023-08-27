@@ -1,6 +1,5 @@
 module Lib
-    ( ptyTest,
-      fork
+    ( ptyTest
     ) where
 
 import System.IO

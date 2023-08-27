@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       ByteCode.ByteCode
+      Engine.Engine
       Lib
       Parser.Parser
   other-modules:
