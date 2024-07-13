@@ -1,5 +1,5 @@
 # wackadoo
 
-Syntax:
+Syntax: Haskell Like
 
  
