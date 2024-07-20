@@ -9,11 +9,16 @@ import Data.Char
 
 data Token =
   IntegerToken Int
-  | StringToken String 
+  | StringToken String
+  | ExecCommand String
+  | FunctionCall String
   | BeginVariableName
   | EndVariableName
   | BeginList
   | EndList
+  | BeginParen
+  | EndParen
+  | Background
   | Comma
   | Assign
   | EqualityCheck
@@ -38,6 +43,8 @@ charToToken c =
   case c of 
     '{'  -> BeginVariableName 
     '}'  -> EndVariableName
+    '('  -> BeginParen
+    ')'  -> EndParen
     '['  -> BeginList
     ']'  -> EndList
     ','  -> Comma
@@ -53,22 +60,15 @@ charToToken c =
     '\t' -> TabWhitespace 1
     _    -> Invalid [c]
 
-stringToToken :: String -> Token
-stringToToken (c:[]) = charToToken c
-stringToToken "=="   = EqualityCheck
-stringToToken ":="   = Assign
-stringToToken "->"   = FileDescriptorRedirection
-stringToToken ""     = NullWhitespace
-stringToToken s
-  | isInteger s      = IntegerToken (read s :: Int)
-  | isTabs    s      = TabWhitespace (length s)
-  | isSpaces  s      = SpaceWhitespace (length s)
-  | isString  s      =
-    let
-      rest = drop 1 s
-    in
-      StringToken (take (length rest - 1) rest)
-  | otherwise        = Invalid s
+isCommand :: String -> Bool
+isCommand ('@':[]) = False
+isCommand ('@':_) = True
+isCommand _ = False
+
+isFunctionCall :: String -> Bool
+isFunctionCall (c:s) =
+  (isAlpha c) && foldr (\s acc -> acc && (c == '_' || (isAlphaNum c))) True s
+isFunctionCall [] = False
 
 isString :: String -> Bool
 isString s = head s == '"' && last s == '"'
@@ -100,8 +100,56 @@ tokenize s =
 tokenizeLine :: String -> Tokens
 tokenizeLine line =
   let whitespaceToken = extractWhitespaceToken line
-      tokens = (map (\s -> stringToToken s) . words) line
+      tokens = (foldl (\acc chunk -> acc ++ tokenizeChunk chunk []) [] . words) line
   in (whitespaceToken:tokens) ++ [EndLine] -- add the newline to ensure that we have delimitation
+
+tokenizeString :: String -> (Token, String)
+tokenizeString s =
+  let
+    stringTokenHelper [] acc = (Invalid acc, "")
+    stringTokenHelper (c:rest) acc =
+      if c == '"'
+      then (StringToken acc, rest)
+      else stringTokenHelper rest (acc ++ [c])
+  in
+    stringTokenHelper s []
+
+tokenizeInteger :: String -> (Token, String)
+tokenizeInteger s =
+  let
+    integerTokenHelper "" acc = (IntegerToken (read acc :: Int), "")
+    integerTokenHelper tokString acc =
+      let
+        (c:rest) = tokString
+      in
+        if isDigit c
+        then integerTokenHelper rest (acc ++ [c])
+        else (IntegerToken (read acc :: Int), tokString)
+  in integerTokenHelper s []
+
+-- input accumulator output
+tokenizeChunk :: String -> Tokens -> Tokens
+tokenizeChunk "==" tokens = tokens ++ [EqualityCheck]
+tokenizeChunk ":=" tokens = tokens ++ [Assign]
+tokenizeChunk "->" tokens = tokens ++ [FileDescriptorRedirection]
+tokenizeChunk "" tokens = tokens ++ [NullWhitespace]
+tokenizeChunk "background" tokens = tokens ++ [Background] 
+tokenizeChunk s tokens =
+  let
+    (c:rest) = s
+  in
+    case c of
+      '"' ->
+        case tokenizeString rest of 
+          (t, "") -> tokens ++ [t]
+          (t, newString) -> tokenizeChunk newString (tokens ++ [t])
+      '@' -> tokens ++ [ExecCommand rest]
+      _ | isDigit c ->
+          case tokenizeInteger s of
+            (t, "") -> tokens ++ [t]
+            (t, newString) -> tokenizeChunk newString (tokens ++ [t])
+        | isFunctionCall s -> tokens ++ [FunctionCall s]
+        | otherwise -> tokenizeChunk rest (tokens ++ [charToToken c])
 
 isNewline :: Char -> Bool
 isNewline c = c == '\n'
@@ -115,16 +163,22 @@ isTrueSpace c = c == ' '
 isValidSpace :: Char -> Bool
 isValidSpace c = (isTab c) || (isTrueSpace c)
 
+createWhitespaceToken :: String -> Token
+createWhitespaceToken s
+  | isTabs    s = TabWhitespace (length s)
+  | isSpaces  s = SpaceWhitespace (length s)
+  | otherwise   = Invalid s
+
 extractWhitespaceToken :: String -> Token
 extractWhitespaceToken (f_p:rest_p) =
   let
-    extract _ [] result = stringToToken result
+    extract _ [] result = createWhitespaceToken result
     extract c (f:rest) result =
         if c == f
         then extract c rest (f:result)
         else if isValidSpace f
              then MixedWhitespace
-             else stringToToken result
+             else createWhitespaceToken result
   in if isValidSpace f_p
      then extract f_p rest_p [f_p]
      else NullWhitespace

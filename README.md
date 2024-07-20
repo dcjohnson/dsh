@@ -2,7 +2,7 @@
 
 Syntax:
 
-run command: <exec command> <arg1> <arg2> ... <argn> 
+run command: @<exec command> <arg1> <arg2> ... <argn> 
 pipe: | 
 fd: an integer
 run command in background: background <run command>
