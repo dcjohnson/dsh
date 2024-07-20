@@ -2,6 +2,7 @@ module Main where
 
 import Lib
 import Parser.Parser
+import Engine.Engine
 import Text.ParserCombinators.ReadP
 import System.IO
 import System.Environment
@@ -21,7 +22,7 @@ execute :: String -> IO ()
 execute fn = do
   code <- readFile fn
   let commands = (parse . lines) code
-      in print commands
+      in executeByteCode commands
     
 
 main :: IO ()
