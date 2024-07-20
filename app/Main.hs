@@ -34,7 +34,7 @@ main = do
   print (tokenizeLine "\t\t\t\tabcd lkej slekj \"ljks\"")
   print (lines "ablkjd a lakd\n\n  lsja kje la \n jlaks")
   print (tokenize "@ablkjd 134 1234 @a @lakd\n\n  lsja k la \n jlaks")
-  print (tokenize " background \"ablkjd\" a @3\"a lakd\n  lsja kje la \n jlaks")
+  print (tokenize " #3afd background \"ablkjd\" a @3\"a lakd\n  lsja kje la \n jlaks")
   print (tokenize "\t\t((}}))\t\n\n")
   print (tokenize "   \n   \n\t\n\t\t\n    \n")
   -- case args of

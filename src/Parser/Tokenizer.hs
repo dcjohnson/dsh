@@ -21,6 +21,13 @@ data Token =
   | Background
   | Comma
   | Assign
+  | If
+  | Else
+  | Elsif
+  | GreaterThan
+  | LessThan
+  | GreaterThanOrEqual
+  | LessThanOrEqual
   | EqualityCheck
   | InequalityCheck
   | Multiplication
@@ -47,6 +54,8 @@ charToToken c =
     ')'  -> EndParen
     '['  -> BeginList
     ']'  -> EndList
+    '>'  -> GreaterThan
+    '<'  -> LessThan
     ','  -> Comma
     '*'  -> Multiplication
     '+'  -> Addition
@@ -55,7 +64,6 @@ charToToken c =
     '%'  -> Modulo
     '|'  -> Pipe
     '\n' -> EndLine
-    '#'  -> Comment
     ' '  -> SpaceWhitespace 1
     '\t' -> TabWhitespace 1
     _    -> Invalid [c]
@@ -133,6 +141,12 @@ tokenizeChunk "==" tokens = tokens ++ [EqualityCheck]
 tokenizeChunk ":=" tokens = tokens ++ [Assign]
 tokenizeChunk "->" tokens = tokens ++ [FileDescriptorRedirection]
 tokenizeChunk "" tokens = tokens ++ [NullWhitespace]
+tokenizeChunk "if" tokens = tokens ++ [If]
+tokenizeChunk "else" tokens = tokens ++ [Else]
+tokenizeChunk "elsif" tokens = tokens ++ [Elsif]
+tokenizeChunk ">=" tokens = tokens ++ [GreaterThanOrEqual]
+tokenizeChunk "<=" tokens = tokens ++ [LessThanOrEqual]
+tokenizeChunk ('#':_) tokens = tokens ++ [Comment]
 tokenizeChunk "background" tokens = tokens ++ [Background] 
 tokenizeChunk s tokens =
   let
