@@ -10,10 +10,11 @@ import ByteCode.ByteCode
 
 parse :: [String] -> [ByteCode]
 parse [] = []
-parse (s:_) =
-  case readP_to_S execCommand s of
-    [((command, n), "")] -> [Exec command n]
-    _ -> [InvalidParse]
+parse _ = []
+-- parse (s:_) =
+--   case readP_to_S execCommand s of
+--     [((command, n), "")] -> [Exec command n]
+--     _ -> [InvalidParse]
 
 indentationParser indentation = do
   string indentation

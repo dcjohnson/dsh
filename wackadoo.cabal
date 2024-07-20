@@ -26,9 +26,9 @@ source-repository head
 library
   exposed-modules:
       ByteCode.ByteCode
-      Engine.Engine
       Lib
       Parser.Parser
+      Parser.Tokenizer
   other-modules:
       Paths_wackadoo
   hs-source-dirs:
