@@ -5,6 +5,12 @@ module Compiler.ByteCode
 
 import Data.Array
 
+-- commands:
+-- exec
+-- set env var
+-- unset env var
+-- pushStringLiteral
+-- pushIntegerLiteral
 data IntermediateCode
   = Exec String [String]
   | InvalidParse deriving (Show)

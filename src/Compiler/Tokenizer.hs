@@ -122,6 +122,7 @@ tokenizeInteger :: String -> (Token, String)
 tokenizeInteger s =
   let
     integerTokenHelper "" acc = (IntegerToken (read acc :: Int), "")
+    integerTokenHelper ('-':tokString) "" = integerTokenHelper tokString "-"
     integerTokenHelper tokString acc =
       let
         (c:rest) = tokString
@@ -218,6 +219,7 @@ tokenizeChunk s =
       '-' ->
         case rest of
           ('>':rest_p) -> (FileDescriptorRedirection, rest_p)
+          (c_p:_) | isDigit c_p -> tokenizeInteger s
           _ -> (Invalid s, "")
       '>' ->
         case rest of
@@ -231,32 +233,11 @@ tokenizeChunk s =
         case rest of
           ('=':rest_p) -> (EqualityCheck, rest_p)
           _ -> (Assign, rest)
-      '"' ->
-        case tokenizeString rest of 
-          (t, "") -> (t, "")
-          (t, newString) -> (t, newString)
-      ' ' ->
-        case tokenizeSpaceTab s of 
-          (t, "") -> (t, "")
-          (t, newString) -> (t, newString)
-      '\t' ->
-        case tokenizeTabChar s of 
-          (t, "") -> (t, "")
-          (t, newString) -> (t, newString)
-      '{' ->
-        case tokenizeVariable rest of 
-          (t, "") -> (t, "")
-          (t, newString) -> (t, newString)
-      '@' ->  
-        case tokenizeCommand rest of 
-          (t, "") -> (t, "")
-          (t, newString) -> (t, newString)
-      _ | isDigit c ->
-          case tokenizeInteger s of
-            (t, "") -> (t, "")
-            (t, newString) -> (t, newString) 
-        | isAlpha c ->
-            case tokenizeAlphaNumerics s of 
-              (t, "") -> (t, "")
-              (t, newString) -> (t, newString)
+      '"' -> tokenizeString rest 
+      ' ' -> tokenizeSpaceTab s 
+      '\t' -> tokenizeTabChar s 
+      '{' -> tokenizeVariable rest 
+      '@' -> tokenizeCommand rest 
+      _ | isDigit c -> tokenizeInteger s 
+        | isAlpha c -> tokenizeAlphaNumerics s 
         | otherwise -> (charToToken c, rest) 

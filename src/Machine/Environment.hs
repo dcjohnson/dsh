@@ -1,6 +1,7 @@
 module Machine.Environment
     ( ptyTest
     , fork
+    , forkExec
     ) where
 
 import System.IO
@@ -20,12 +21,23 @@ ptyTest = do
   str <- SPIB.fdRead m 10
   print str
 
-fork :: IO ()
-fork = do
+fork :: Bool -> IO ()
+fork block = do
   fPid <- SPP.forkProcess (do
-      txtFD <- SPI.openFd "/Users/dcjohnson/dev/wackadoo/text.txt" WriteOnly (SPI.defaultFileFlags { append = True }) 
+      txtFD <- SPI.openFd "/Users/dcjohnson/dev/dsh/text.txt" WriteOnly (SPI.defaultFileFlags { append = True }) 
       dupTo txtFD stdOutput 
-      SPP.executeFile "echo" True ["reeeeeee"] Nothing
-      return ())                              
-  SPP.getProcessStatus True False fPid
+      SPP.executeFile "sleep" True ["10"] Nothing
+      return ())
+
+  SPP.getProcessStatus block False fPid
+  return ()
+
+forkExec :: String -> [String] -> Bool -> IO ()
+forkExec command args block = do
+  pid <- SPP.forkProcess (do
+                             -- eventually we will not search the path and will define our own path.
+                             -- We can, optionally, inherit the path of the parent shell if we want.
+                             SPP.executeFile command True args Nothing
+                             return ())
+  SPP.getProcessStatus block False pid
   return ()
