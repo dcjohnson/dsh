@@ -199,7 +199,7 @@ tokenizeChunks tokenString =
 tokenizeChunk :: String -> (Token, String)
 tokenizeChunk "" = (NullWhitespace, "")
 tokenizeChunk ('#':_) = (Comment, "")
-tokenizeChunk s  =
+tokenizeChunk s =
   let
     (c:rest) = s
   in
