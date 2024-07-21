@@ -18,5 +18,7 @@ main = do
       (print . tokenize) code
     ["-f", fn] -> do
       code <- readFile fn
-      (print . parse . tokenize) code
+      case (parse . tokenize) code of
+        (Success compCode) -> execute compCode
+        (Fail s) -> putStrLn s
     _ -> putStrLn "Invalid arguments"
