@@ -1,9 +1,11 @@
 module ByteCode.ByteCode
-  ( ByteCode(..)
+  ( IntermediateCode(..),
+    Code
   ) where
 
-data ByteCode
+
+data IntermediateCode
   = Exec String [String]
   | InvalidParse deriving (Show)
 
-  
+type Code = [IntermediateCode]  

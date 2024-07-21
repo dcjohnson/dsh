@@ -1,6 +1,8 @@
 
 module Parser.Tokenizer
-  ( tokenize
+  ( tokenize,
+    Token(..),
+    Tokens
   ) where
 
 import Text.Read
