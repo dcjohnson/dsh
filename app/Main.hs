@@ -16,5 +16,5 @@ main = do
   case args of
     ["-f", fn] -> do
       code <- readFile fn
-      (print . tokenize) code
+      (print . parse . tokenize) code
     _ -> putStrLn "Invalid arguments"

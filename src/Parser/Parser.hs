@@ -1,5 +1,5 @@
 module Parser.Parser
-  ( 
+  ( parse
   ) where
 
 

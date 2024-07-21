@@ -79,7 +79,7 @@ type Tokens = [Token]
 
 tokenize :: String -> Tokens
 tokenize s =
-  let tokenizerChain = (foldl (\acc s -> acc ++ (tokenizeLine s)) []) .
+  let tokenizerChain = (foldr (\s acc ->  (tokenizeLine s) ++ acc) []) .
                        (foldr (\s acc ->
                                   case s of
                                     "" -> acc
