@@ -4,7 +4,7 @@ module Machine.Machine
 
 -- import Data.Map.Lazy
 import Data.Array
-import Compiler.ByteCode
+import Compiler.Code
 import Machine.Environment as ENV
 
 -- Need to set env vars

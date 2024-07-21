@@ -3,7 +3,7 @@ module Compiler.Parser
   , SuccessOrFail(..)
   ) where
 
-import Compiler.ByteCode as BC
+import Compiler.Code as C
 import Compiler.Tokenizer
 import Data.Array
 
@@ -26,7 +26,7 @@ data Parser = Parser
 parse :: Tokens -> SuccessOrFail Code String
 parse tokens =
   let
-    parseHelper _ [] code = Success (code ++ [BC.Exit])
+    parseHelper _ [] code = Success (code ++ [C.Exit])
     parseHelper parser (t:rest) code =
         case t of
           NullWhitespace -> parseHelper parser rest code
@@ -48,7 +48,7 @@ parse tokens =
                   _ -> Fail "Currently unsupported syntax encoutered"
             in
               case (aggregateArgs rest []) of
-                (Success (args, restArgs)) -> parseHelper parser restArgs (code ++ [BC.Exec ec args])
+                (Success (args, restArgs)) -> parseHelper parser restArgs (code ++ [C.Exec ec args])
                 (Fail s) -> Fail s
           _ -> Fail "Currently unsupported tokens encountered"
   in
