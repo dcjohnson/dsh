@@ -2,6 +2,8 @@
 
 Syntax:
 
+All Strings Are Quoted
+
 run command: @<exec command> <arg1> <arg2> ... <argn> 
 pipe: | 
 fd: an integer

@@ -2,5 +2,5 @@
 
 	    	lKJ
 fn abcd =
-     @ree
+     @ree "--" {afs} "-a"
      alkj
