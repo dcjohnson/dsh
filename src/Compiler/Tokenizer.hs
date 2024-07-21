@@ -5,7 +5,6 @@ module Compiler.Tokenizer
     Tokens
   ) where
 
-import Text.Read
 import Data.Char
 
 data Token
@@ -79,11 +78,11 @@ type Tokens = [Token]
 
 tokenize :: String -> Tokens
 tokenize s =
-  let tokenizerChain = (foldr (\s acc ->  (tokenizeLine s) ++ acc) []) .
-                       (foldr (\s acc ->
-                                  case s of
+  let tokenizerChain = (foldr (\line acc ->  (tokenizeLine line) ++ acc) []) .
+                       (foldr (\line acc ->
+                                  case line of
                                     "" -> acc
-                                    _ -> (s:acc)) []) . lines
+                                    _ -> (line:acc)) []) . lines
   in tokenizerChain s
 
 -- We need to preserve leading whitespace as its own token.

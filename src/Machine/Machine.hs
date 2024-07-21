@@ -12,4 +12,4 @@ data Machine = Machine
   }
 
 execute :: Code -> IO ()
-execute code = putStrLn "Hi"
+execute _ = putStrLn "Hi"

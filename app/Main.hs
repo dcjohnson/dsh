@@ -1,10 +1,6 @@
-module Main where
-
 import Compiler.Tokenizer
 import Compiler.Parser
-import Compiler.ByteCode
 import Machine.Machine
-import Machine.Environment
 import System.IO
 import System.Environment    
 
