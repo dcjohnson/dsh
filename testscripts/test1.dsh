@@ -6,8 +6,9 @@
 
 ab := 3
 
+ns e
+  fn abcd a a_ al3 =
+    @ree "--" {afs} (3 + 4) "-a"
+    alkj
 
-
-fn abcd a a_ al3 =
-     @ree "--" {afs} (3 + 4) "-a"
-     alkj
+e::abcd "ab" 3 {eeee} e::{ab}

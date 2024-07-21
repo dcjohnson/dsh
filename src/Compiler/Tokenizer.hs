@@ -15,6 +15,8 @@ data Token
   | Exit
   | Return
   | Function
+  | Namespace
+  | NamespaceDescent
   | Name String
   | BeginList
   | EndList
@@ -154,6 +156,7 @@ convertToAlphaNumericsToken "else" = Else
 convertToAlphaNumericsToken "elsif" = Elsif
 convertToAlphaNumericsToken "background" = Background
 convertToAlphaNumericsToken "fn" = Function
+convertToAlphaNumericsToken "ns" = Namespace
 convertToAlphaNumericsToken "return" = Return
 convertToAlphaNumericsToken "exit" = Exit
 convertToAlphaNumericsToken s = Name s
@@ -214,6 +217,7 @@ tokenizeChunk s =
     case c of
       ':' ->
         case rest of
+          (':':rest_p) -> (NamespaceDescent, rest_p)
           ('=':rest_p) -> (Assign, rest_p)
           _ -> (Invalid s, "")
       '-' ->
