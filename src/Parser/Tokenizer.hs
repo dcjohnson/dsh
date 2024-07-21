@@ -12,6 +12,8 @@ data Token
   | StringToken String
   | Variable String
   | ExecCommand String
+  | Exit
+  | Return
   | Function
   | FunctionName String
   | BeginList
@@ -51,8 +53,6 @@ isInvalid _ = False
 charToToken :: Char -> Token
 charToToken c =
   case c of 
-    -- '{'  -> BeginVariableName 
-    -- '}'  -> EndVariableName
     '('  -> BeginParen
     ')'  -> EndParen
     '['  -> BeginList
@@ -112,7 +112,9 @@ tokenizeVariable s =
     variableTokenHelper (c:rest) acc =
       if c == '}'
       then (Variable acc, rest)
-      else variableTokenHelper rest (acc ++ [c])
+      else if isAlphaNumericsChar c
+           then variableTokenHelper rest (acc ++ [c])
+           else (Invalid acc, "")
   in
     variableTokenHelper s []
 
@@ -137,9 +139,9 @@ tokenizeCommand s =
       let
         (c:rest) = tokString
       in
-        if isSpace c
-        then (ExecCommand acc, tokString)
-        else integerTokenHelper rest (acc ++ [c])
+        if isAlphaNumericsChar c
+        then integerTokenHelper rest (acc ++ [c])
+        else (ExecCommand acc, tokString)
   in integerTokenHelper s []
 
 convertToAlphaNumericsToken :: String -> Token
@@ -148,6 +150,8 @@ convertToAlphaNumericsToken "else" = Else
 convertToAlphaNumericsToken "elsif" = Elsif
 convertToAlphaNumericsToken "background" = Background
 convertToAlphaNumericsToken "fn" = Function
+convertToAlphaNumericsToken "return" = Return
+convertToAlphaNumericsToken "exit" = Exit
 convertToAlphaNumericsToken s = FunctionName s
 
 tokenizeAlphaNumerics :: String -> (Token, String)
@@ -252,4 +256,4 @@ tokenizeChunk s =
             case tokenizeAlphaNumerics s of 
               (t, "") -> (t, "")
               (t, newString) -> (t, newString)
-        | otherwise -> (charToToken c, "") 
+        | otherwise -> (charToToken c, rest) 
