@@ -16,13 +16,13 @@ ptyTest = do
   Control.Concurrent.forkIO (do
                                 SPIB.fdWrite s (fromString "Hello!")
                                 return ())
-  (str, _) <- SPIB.fdRead m 10
-  System.IO.putStrLn str
+  str <- SPIB.fdRead m 10
+  print str
 
 fork :: IO ()
 fork = do
   fPid <- SPP.forkProcess (do
-      txtFD <- SPI.openFd "/Users/dcjohnson/dev/wackadoo/text.txt" WriteOnly Nothing (SPI.defaultFileFlags { append = True }) 
+      txtFD <- SPI.openFd "/Users/dcjohnson/dev/wackadoo/text.txt" WriteOnly (SPI.defaultFileFlags { append = True }) 
       dupTo txtFD stdOutput 
       SPP.executeFile "echo" True ["reeeeeee"] Nothing
       return ())                              
