@@ -7,13 +7,12 @@ module Parser.Tokenizer
 import Text.Read
 import Data.Char
 
-data Token =
-  IntegerToken Int
+data Token
+  = IntegerToken Int
   | StringToken String
+  | Variable String
   | ExecCommand String
   | FunctionCall String
-  | BeginVariableName
-  | EndVariableName
   | BeginList
   | EndList
   | BeginParen
@@ -43,13 +42,17 @@ data Token =
   | EndLine
   | Comment
   | MixedWhitespace
-  | Invalid String deriving Show
+  | Invalid String deriving (Show, Eq)
+
+isInvalid :: Token -> Bool
+isInvalid (Invalid _) = True
+isInvalid _ = False
 
 charToToken :: Char -> Token
 charToToken c =
   case c of 
-    '{'  -> BeginVariableName 
-    '}'  -> EndVariableName
+    -- '{'  -> BeginVariableName 
+    -- '}'  -> EndVariableName
     '('  -> BeginParen
     ')'  -> EndParen
     '['  -> BeginList
@@ -108,7 +111,7 @@ tokenize s =
 tokenizeLine :: String -> Tokens
 tokenizeLine line =
   let whitespaceToken = extractWhitespaceToken line
-      tokens = (foldl (\acc chunk -> acc ++ tokenizeChunk chunk []) [] . words) line
+      tokens = (foldl (\acc chunk -> acc ++ tokenizeChunks chunk) [] . words) line
   in (whitespaceToken:tokens) ++ [EndLine] -- add the newline to ensure that we have delimitation
 
 tokenizeString :: String -> (Token, String)
@@ -121,6 +124,17 @@ tokenizeString s =
       else stringTokenHelper rest (acc ++ [c])
   in
     stringTokenHelper s []
+
+tokenizeVariable :: String -> (Token, String)
+tokenizeVariable s =
+  let
+    variableTokenHelper [] acc = (Invalid acc, "")
+    variableTokenHelper (c:rest) acc =
+      if c == '}'
+      then (Variable acc, rest)
+      else variableTokenHelper rest (acc ++ [c])
+  in
+    variableTokenHelper s []
 
 tokenizeInteger :: String -> (Token, String)
 tokenizeInteger s =
@@ -135,35 +149,70 @@ tokenizeInteger s =
         else (IntegerToken (read acc :: Int), tokString)
   in integerTokenHelper s []
 
--- input accumulator output
-tokenizeChunk :: String -> Tokens -> Tokens
-tokenizeChunk "==" tokens = tokens ++ [EqualityCheck]
-tokenizeChunk ":=" tokens = tokens ++ [Assign]
-tokenizeChunk "->" tokens = tokens ++ [FileDescriptorRedirection]
-tokenizeChunk "" tokens = tokens ++ [NullWhitespace]
-tokenizeChunk "if" tokens = tokens ++ [If]
-tokenizeChunk "else" tokens = tokens ++ [Else]
-tokenizeChunk "elsif" tokens = tokens ++ [Elsif]
-tokenizeChunk ">=" tokens = tokens ++ [GreaterThanOrEqual]
-tokenizeChunk "<=" tokens = tokens ++ [LessThanOrEqual]
-tokenizeChunk ('#':_) tokens = tokens ++ [Comment]
-tokenizeChunk "background" tokens = tokens ++ [Background] 
-tokenizeChunk s tokens =
+tokenizeChunks :: String -> Tokens
+tokenizeChunks tokenString =
+  let
+    helper s tokens =
+      let
+        (token, rest) = tokenizeChunk s
+        newTokens = tokens ++ [token]
+      in
+        if rest == "" || (isInvalid token)
+        then newTokens
+        else helper rest newTokens
+  in
+    helper tokenString []
+
+
+tokenizeChunk :: String -> (Token, String)
+tokenizeChunk "" = (NullWhitespace, "")
+tokenizeChunk "if" = (If, "")
+tokenizeChunk "else" = (Else, "")
+tokenizeChunk "elsif" = (Elsif, "")
+tokenizeChunk ('#':_) = (Comment, "")
+tokenizeChunk "background" = (Background, "") 
+tokenizeChunk s  =
   let
     (c:rest) = s
   in
     case c of
+      ':' ->
+        case rest of
+          ('=':rest_p) -> (Assign, rest_p)
+          _ -> (Invalid s, "")
+      '-' ->
+        case rest of
+          ('>':rest_p) -> (FileDescriptorRedirection, rest_p)
+          _ -> (Invalid s, "")
+      '>' ->
+        case rest of
+          ('=':rest_p) -> (GreaterThanOrEqual, rest_p)
+          _ -> (Invalid s, "")          
+      '<' ->
+        case rest of
+          ('=':rest_p) -> (LessThanOrEqual, rest_p)
+          _ -> (Invalid s, "")
+          
+      '=' ->
+        case rest of
+          ('=':rest_p) -> (EqualityCheck, rest_p)
+          _ -> (Invalid s, "")
       '"' ->
         case tokenizeString rest of 
-          (t, "") -> tokens ++ [t]
-          (t, newString) -> tokenizeChunk newString (tokens ++ [t])
-      '@' -> tokens ++ [ExecCommand rest]
+          (t, "") -> (t, "")
+          (t, newString) -> (t, newString)
+      '{' ->
+        case tokenizeVariable rest of 
+          (t, "") -> (t, "")
+          (t, newString) -> (t, newString)
+      '@' ->  (ExecCommand rest, "")
       _ | isDigit c ->
           case tokenizeInteger s of
-            (t, "") -> tokens ++ [t]
-            (t, newString) -> tokenizeChunk newString (tokens ++ [t])
-        | isFunctionCall s -> tokens ++ [FunctionCall s]
-        | otherwise -> tokenizeChunk rest (tokens ++ [charToToken c])
+            (t, "") -> (t, "")
+            (t, newString) -> (t, newString) 
+        | isFunctionCall s -> (FunctionCall s, "") 
+        | otherwise -> (charToToken c, "") 
+
 
 isNewline :: Char -> Bool
 isNewline c = c == '\n'

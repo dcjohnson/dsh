@@ -1,17 +1,17 @@
 module ByteCode.ByteCode
-  ( ByteCode(..),	
-		Lexeme(..),
-		extractString,
-		extractStrings,
+  ( ByteCode(..),
+    Lexeme(..),
+    extractString,
+    extractStrings,
   ) where
 
 data Lexeme
   = Str String
   | Num String
   | Var String
-	| Pipe
-	| Command String
-	| NewLine deriving (Show)
+  | Pipe
+  | Command String
+  | NewLine deriving (Show)
 
 extractString :: Lexeme -> String
 extractString (Str s) = s
