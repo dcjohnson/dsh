@@ -11,4 +11,4 @@ ns e
     @ree "--" {afs} (3 + 4) "-a"
     alkj
 
-e::abcd "ab" 3 {eeee} e::{ab}
+e::abcd "ab" 3 {eeee} (3 + {a}) e::{ab}
