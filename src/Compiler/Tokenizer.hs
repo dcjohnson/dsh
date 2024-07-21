@@ -1,5 +1,5 @@
 
-module Parser.Tokenizer
+module Compiler.Tokenizer
   ( tokenize,
     Token(..),
     Tokens

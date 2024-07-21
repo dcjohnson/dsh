@@ -1,11 +1,11 @@
-module Parser.Parser
+module Compiler.Parser
   ( parse
   ) where
 
 
 import System.IO
-import ByteCode.ByteCode
-import Parser.Tokenizer
+import Compiler.ByteCode
+import Compiler.Tokenizer
 
 data TabType
   = Space

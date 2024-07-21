@@ -1,10 +1,9 @@
 module Main where
 
 import Lib
-import Parser.Tokenizer
-import Parser.Parser
-import ByteCode.ByteCode
-import Text.ParserCombinators.ReadP
+import Compiler.Tokenizer
+import Compiler.Parser
+import Compiler.ByteCode
 import System.IO
 import System.Environment    
 

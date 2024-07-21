@@ -1,4 +1,4 @@
-module ByteCode.ByteCode
+module Compiler.ByteCode
   ( IntermediateCode(..),
     Code
   ) where
