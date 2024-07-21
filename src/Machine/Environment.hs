@@ -1,5 +1,6 @@
 module Machine.Environment
     ( ptyTest
+    , fork
     ) where
 
 import System.IO

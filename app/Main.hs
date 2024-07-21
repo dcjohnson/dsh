@@ -4,6 +4,7 @@ import Compiler.Tokenizer
 import Compiler.Parser
 import Compiler.ByteCode
 import Machine.Machine
+import Machine.Environment
 import System.IO
 import System.Environment    
 
@@ -22,3 +23,4 @@ main = do
         (Success compCode) -> execute compCode
         (Fail s) -> putStrLn s
     _ -> putStrLn "Invalid arguments"
+
