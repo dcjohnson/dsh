@@ -15,7 +15,7 @@ data Token
   | Exit
   | Return
   | Function
-  | FunctionName String
+  | Name String
   | BeginList
   | EndList
   | BeginParen
@@ -156,7 +156,7 @@ convertToAlphaNumericsToken "background" = Background
 convertToAlphaNumericsToken "fn" = Function
 convertToAlphaNumericsToken "return" = Return
 convertToAlphaNumericsToken "exit" = Exit
-convertToAlphaNumericsToken s = FunctionName s
+convertToAlphaNumericsToken s = Name s
 
 tokenizeAlphaNumerics :: String -> (Token, String)
 tokenizeAlphaNumerics s =

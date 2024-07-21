@@ -118,6 +118,7 @@
 @echo "Hello!"
 @/bin/echo "--" "-a"
 @echo "Hello!"
+@sleep "10"
 @/bin/echo "--" "-a"
 @echo "Hello!"
 @/bin/echo "--" "-a"
