@@ -132,6 +132,9 @@ tokenizeInteger s =
         else (IntegerToken (read acc :: Int), tokString)
   in integerTokenHelper s []
 
+isCommandChar :: Char -> Bool
+isCommandChar c = c == '.' || c == '/' || isAlphaNum c
+
 tokenizeCommand :: String -> (Token, String)
 tokenizeCommand s =
   let
@@ -140,7 +143,7 @@ tokenizeCommand s =
       let
         (c:rest) = tokString
       in
-        if isAlphaNumericsChar c
+        if isCommandChar c
         then integerTokenHelper rest (acc ++ [c])
         else (ExecCommand acc, tokString)
   in integerTokenHelper s []
@@ -228,7 +231,7 @@ tokenizeChunk s =
       '=' ->
         case rest of
           ('=':rest_p) -> (EqualityCheck, rest_p)
-          _ -> (Invalid s, "")
+          _ -> (Assign, rest)
       '"' ->
         case tokenizeString rest of 
           (t, "") -> (t, "")
