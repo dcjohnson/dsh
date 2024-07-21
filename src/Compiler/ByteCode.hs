@@ -3,9 +3,10 @@ module Compiler.ByteCode
     Code
   ) where
 
+import Data.Array
 
 data IntermediateCode
   = Exec String [String]
   | InvalidParse deriving (Show)
 
-type Code = [IntermediateCode]  
+type Code = Array Int IntermediateCode

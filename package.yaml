@@ -24,6 +24,7 @@ dependencies:
 - unix
 - bytestring
 - containers
+- array
 
 ghc-options:
 - -Wall

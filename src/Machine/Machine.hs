@@ -2,14 +2,25 @@ module Machine.Machine
     ( execute
     ) where
 
-import Data.Map.Lazy
+-- import Data.Map.Lazy
+import Data.Array
 import Compiler.ByteCode
 
 data Machine = Machine
-  { stringVarMap :: Map String String
-  , intVarMap :: Map Int String
-  , instructionPointer :: Int
+  { instructionPointer :: Int
   }
 
 execute :: Code -> IO ()
-execute _ = putStrLn "Hi"
+execute code = do
+  let
+    machine = Machine
+      { instructionPointer = 0
+      }
+    executer machine code = do
+      let currentInstruction = code ! (instructionPointer machine)
+      case currentInstruction of
+        (Exec command args) -> putStrLn "hi"
+        InvalidParse -> putStrLn "Invalid parse"
+  executer machine code
+      
+    

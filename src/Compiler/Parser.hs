@@ -5,6 +5,7 @@ module Compiler.Parser
 
 import Compiler.ByteCode
 import Compiler.Tokenizer
+import Data.Array
 
 data TabType
   = Space
@@ -25,12 +26,6 @@ data Parser = Parser
 parse :: Tokens -> SuccessOrFail Code String
 parse tokens =
   let
-    p = Parser
-        { tabType = None
-        , tabWidth = 0
-        , currentTabLevel = 0
-        , nextTabLevel = 0
-        }
     parseHelper _ [] code = Success code
     parseHelper parser (t:rest) code =
         case t of
@@ -56,6 +51,12 @@ parse tokens =
                 (Success (args, restArgs)) -> parseHelper parser restArgs (code ++ [Exec ec args])
                 (Fail s) -> Fail s
           _ -> Fail "Currently unsupported tokens encountered"
-                  
   in
-    parseHelper p tokens []
+    case (parseHelper (Parser
+                      { tabType = None
+                      , tabWidth = 0
+                      , currentTabLevel = 0
+                      , nextTabLevel = 0
+                      }) tokens []) of 
+      Success codeList -> Success (listArray (0, length codeList - 1) codeList)
+      Fail msg -> Fail msg
