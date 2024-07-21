@@ -13,6 +13,7 @@ import Data.Array
 -- pushIntegerLiteral
 data IntermediateCode
   = Exec String [String]
+  | Exit
   | InvalidParse deriving (Show)
 
 type Code = Array Int IntermediateCode

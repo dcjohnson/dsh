@@ -13,6 +13,15 @@ data Machine = Machine
   { instructionPointer :: Int
   }
 
+fetchInstruction :: Machine -> Code -> (IntermediateCode, Machine)
+fetchInstruction machine code =
+  let
+    currentIP = instructionPointer machine
+    currentInstruction = code ! currentIP
+    nextMachine = machine { instructionPointer = currentIP + 1 }
+  in
+    (currentInstruction, nextMachine)
+
 execute :: Code -> IO ()
 execute code = do
   let
@@ -20,9 +29,12 @@ execute code = do
       { instructionPointer = 0
       }
     executer machine code = do
-      let currentInstruction = code ! (instructionPointer machine)
+      let (currentInstruction, nextMachine) = fetchInstruction machine code
       case currentInstruction of
-        (Exec command args) -> ENV.forkExec command args True
+        (Exit) -> return ()
+        (Exec command args) -> do
+          ENV.forkExec command args True
+          executer nextMachine code
         InvalidParse -> putStrLn "Invalid parse"
   executer machine code
       
