@@ -1,9 +1,9 @@
 module Main where
 
-import Lib
 import Compiler.Tokenizer
 import Compiler.Parser
 import Compiler.ByteCode
+import Machine.Machine
 import System.IO
 import System.Environment    
 

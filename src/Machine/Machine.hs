@@ -1,5 +1,5 @@
 module Machine.Machine
-    ( ptyTest
+    ( execute
     ) where
 
 import Data.Map.Lazy

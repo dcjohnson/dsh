@@ -1,5 +1,6 @@
 module Compiler.Parser
   ( parse
+  , SuccessOrFail(..)
   ) where
 
 

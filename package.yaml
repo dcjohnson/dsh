@@ -1,14 +1,14 @@
-name:                wackadoo
+name:                dsh
 version:             0.1.0.0
-github:              "githubuser/wackadoo"
-license:             BSD3
+github:              "githubuser/dsh"
+license:             BSD-3-Clause
 author:              "Author name here"
 maintainer:          "example@example.com"
-copyright:           "2022 Author name here"
+copyright:           "2024 Author name here"
 
 extra-source-files:
 - README.md
-- ChangeLog.md
+- CHANGELOG.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -17,19 +17,30 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/githubuser/wackadoo#readme>
+description:         Please see the README on GitHub at <https://github.com/githubuser/dsh#readme>
 
 dependencies:
-- base >= 4 && < 5
+- base >= 4.7 && < 5
 - unix
 - bytestring
 - containers
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
 
 library:
   source-dirs: src
 
 executables:
-  wackadoo-exe:
+  dsh-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -37,10 +48,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - wackadoo
+    - dsh
 
 tests:
-  wackadoo-test:
+  dsh-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -48,4 +59,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - wackadoo
+    - dsh
