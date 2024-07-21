@@ -41,7 +41,7 @@ parse tokens =
                 case arg of
                   (StringToken st) -> aggregateArgs restArgs (aggregatedArgs ++ [st])
                   (IntegerToken n) -> aggregateArgs restArgs (aggregatedArgs ++ [show n])
-                  (Variable _) -> Fail "Parser can't generate op codes for variables yet"
+                  (Name _) -> Fail "Parser can't generate op codes for variables yet"
                   (TabWhitespace _) -> aggregateArgs restArgs aggregatedArgs
                   (SpaceWhitespace _) -> aggregateArgs restArgs aggregatedArgs
                   EndLine -> Success (aggregatedArgs, restArgs)

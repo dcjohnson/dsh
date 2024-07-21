@@ -8,6 +8,10 @@ run command: @<exec command> <arg1> <arg2> ... <argn>
 
 pipe: | 
 
+This writes the output of the shell command to the variable a
+
+a := @echo reee 
+
 fd: an integer
 
 run command in background: background <run command>
@@ -15,5 +19,8 @@ run command in background: background <run command>
 file descriptor redirection: <run command> <fd> -> <fd>
 
 string: "anb lasdjlajd "
+
+string interpolation "abd{var}al"
+var is a string variable
 
 We will have a "main" function entrypoint. If it doesn't have that then it is just a library. 

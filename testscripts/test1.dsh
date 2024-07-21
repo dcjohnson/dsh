@@ -1,4 +1,4 @@
-            "@ab" @lkjd 134 if fn jSa3_2 1234 @ac, c, ,, @lakd ->3 5=={xx3s_3s} >= lsja k la  " jlaks"
+            "@ab" @lkjd 134 if fn jSa3_2 1234 @ac, c, ,, @lakd ->3 5==xx3s_3s >= lsja k la  " jlaks"
 
 
 
@@ -8,7 +8,11 @@ ab := 3
 
 ns e
   fn abcd a a_ al3 =
-    @ree "--" {afs} (3 + 4) "-a"
+    @ree "--" afs (3 + 4) "-a"
     alkj
 
-e::abcd "ab" 3 {eeee} (3 + {a}) e::{ab}
+@echo "reeeeee" ->!!/out/fi3le.txt
+
+e::abcd "ab" 3 eeee (3 + a) (@echo "fe/eee")    e::ab
+
+

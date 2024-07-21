@@ -10,7 +10,6 @@ import Data.Char
 data Token
   = IntegerToken Int
   | StringToken String
-  | Variable String
   | ExecCommand String
   | Exit
   | Return
@@ -18,6 +17,7 @@ data Token
   | Namespace
   | NamespaceDescent
   | Name String
+  | Filename String
   | BeginList
   | EndList
   | BeginParen
@@ -107,19 +107,6 @@ tokenizeString s =
   in
     stringTokenHelper s []
 
-tokenizeVariable :: String -> (Token, String)
-tokenizeVariable s =
-  let
-    variableTokenHelper [] acc = (Invalid acc, "")
-    variableTokenHelper (c:rest) acc =
-      if c == '}'
-      then (Variable acc, rest)
-      else if isAlphaNumericsChar c
-           then variableTokenHelper rest (acc ++ [c])
-           else (Invalid acc, "")
-  in
-    variableTokenHelper s []
-
 tokenizeInteger :: String -> (Token, String)
 tokenizeInteger s =
   let
@@ -150,6 +137,22 @@ tokenizeCommand s =
         else (ExecCommand acc, tokString)
   in integerTokenHelper s []
 
+isFileChar :: Char -> Bool
+isFileChar c = (not . isSpace) c
+
+tokenizeFile :: String -> (Token, String)
+tokenizeFile s =
+  let
+    fileTokenHelper "" acc = (Filename acc, "")
+    fileTokenHelper tokString acc =
+      let
+        (c:rest) = tokString
+      in
+        if isFileChar c
+        then fileTokenHelper rest (acc ++ [c])
+        else (Filename acc, tokString)
+  in fileTokenHelper s []
+  
 convertToAlphaNumericsToken :: String -> Token
 convertToAlphaNumericsToken "if" = If
 convertToAlphaNumericsToken "else" = Else
@@ -199,7 +202,10 @@ tokenizeChunks tokenString =
     helper s tokens =
       let
         (token, rest) = tokenizeChunk s
-        newTokens = tokens ++ [token]
+        newTokens =
+          if token == Comment -- don't even add the comment token 
+          then tokens
+          else tokens ++ [token]
       in
         if rest == "" || (isInvalid token)
         then newTokens
@@ -240,8 +246,8 @@ tokenizeChunk s =
       '"' -> tokenizeString rest 
       ' ' -> tokenizeSpaceTab s 
       '\t' -> tokenizeTabChar s 
-      '{' -> tokenizeVariable rest 
-      '@' -> tokenizeCommand rest 
+      '@' -> tokenizeCommand rest
+      '!' -> tokenizeFile rest
       _ | isDigit c -> tokenizeInteger s 
         | isAlpha c -> tokenizeAlphaNumerics s 
         | otherwise -> (charToToken c, rest) 
