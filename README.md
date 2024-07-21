@@ -21,6 +21,6 @@ file descriptor redirection: <run command> <fd> -> <fd>
 string: "anb lasdjlajd "
 
 string interpolation "abd{var}al"
-var is a string variable
+	var is a string variable
 
 We will have a "main" function entrypoint. If it doesn't have that then it is just a library. 

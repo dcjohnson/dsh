@@ -25,9 +25,12 @@ data Token
   | Background
   | Comma
   | Assign
+  | Import
   | If
   | Else
   | Elsif
+  | TrueToken
+  | FalseToken
   | GreaterThan
   | LessThan
   | GreaterThanOrEqual
@@ -157,11 +160,14 @@ convertToAlphaNumericsToken :: String -> Token
 convertToAlphaNumericsToken "if" = If
 convertToAlphaNumericsToken "else" = Else
 convertToAlphaNumericsToken "elsif" = Elsif
+convertToAlphaNumericsToken "true" = TrueToken
+convertToAlphaNumericsToken "false" = FalseToken
 convertToAlphaNumericsToken "background" = Background
 convertToAlphaNumericsToken "fn" = Function
 convertToAlphaNumericsToken "ns" = Namespace
 convertToAlphaNumericsToken "return" = Return
 convertToAlphaNumericsToken "exit" = Exit
+convertToAlphaNumericsToken "import" = Import
 convertToAlphaNumericsToken s = Name s
 
 tokenizeAlphaNumerics :: String -> (Token, String)
@@ -180,14 +186,22 @@ tokenizeAlphaNumerics s =
 tokenizeTab :: Char -> String -> (Token, String)
 tokenizeTab tabChar s =
   let
-    spaceTabTokenHelper "" acc = (SpaceWhitespace (length acc), "")
+    genTabToken acc =
+      let
+        l = length acc
+      in
+        case tabChar of
+          ' ' -> SpaceWhitespace l
+          '\t' -> TabWhitespace l
+          _ -> Invalid "Invalid tab"
+    spaceTabTokenHelper "" acc = (genTabToken acc, "")
     spaceTabTokenHelper tokString acc =
       let
         (c:rest) = tokString
       in
         if c == tabChar
         then spaceTabTokenHelper rest (acc ++ [c])
-        else (SpaceWhitespace (length acc), tokString)
+        else (genTabToken acc, tokString)
   in spaceTabTokenHelper s []
 
 tokenizeSpaceTab :: String -> (Token, String)
@@ -196,22 +210,31 @@ tokenizeSpaceTab s = tokenizeTab ' ' s
 tokenizeTabChar :: String -> (Token, String)
 tokenizeTabChar s = tokenizeTab '\t' s
 
+tokenIsTab :: Token -> Bool
+tokenIsTab (SpaceWhitespace _) = True 
+tokenIsTab (TabWhitespace _) = True
+tokenIsTab _ = False
+
 tokenizeChunks :: String -> Tokens
 tokenizeChunks tokenString =
   let
-    helper s tokens =
+    helper firstToken s tokens =
       let
         (token, rest) = tokenizeChunk s
         newTokens =
           if token == Comment -- don't even add the comment token 
           then tokens
-          else tokens ++ [token]
+          else if tokenIsTab token
+               then if firstToken
+                    then tokens ++ [token]
+                    else tokens
+               else tokens ++ [token]
       in
         if rest == "" || (isInvalid token)
         then newTokens
-        else helper rest newTokens
+        else helper False rest newTokens
   in
-    helper tokenString []
+    helper True tokenString []
 
 tokenizeChunk :: String -> (Token, String)
 tokenizeChunk "" = (NullWhitespace, "")

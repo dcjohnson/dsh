@@ -13,6 +13,12 @@ ns e
 
 @echo "reeeeee" ->!!/out/fi3le.txt
 
+import !/some/file.dsh
+
+	if true == (e == 3)
+   aaaa
+   
+
 e::abcd "ab" 3 eeee (3 + a) (@echo "fe/eee")    e::ab
 
 
