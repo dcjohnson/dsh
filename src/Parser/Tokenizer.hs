@@ -1,7 +1,6 @@
 
 module Parser.Tokenizer
-  ( tokenizeLine,
-    tokenize
+  ( tokenize
   ) where
 
 import Text.Read
