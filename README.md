@@ -30,3 +30,13 @@ Functions have stack space for the following:
 A location to return a value to. 
 The address of the previous function call so we can reset the stack pointer.
 All parameters and local variables. 
+
+Here is how backgrounding function calls will work. 
+
+There will be a fork instruction that will fork the process; a register called FPID will be updated accordingly. As part of the compilation of that background instruction, we will get the following instructions:
+
+fork
+jumpForked afterForkLabel (This will jump to the label if the PID matches FPID
+functionCall
+exit 
+afterFork <some instruction>
