@@ -36,7 +36,7 @@ Here is how backgrounding function calls will work.
 There will be a fork instruction that will fork the process; a register called FPID will be updated accordingly. As part of the compilation of that background instruction, we will get the following instructions:
 
 fork
-jumpForked afterForkLabel (This will jump to the label if the PID matches FPID
+jumpForked afterForkLabel (This will jump to the label if the PID doesn't match the FPID register)
 functionCall
 exit 
 afterFork <some instruction>
