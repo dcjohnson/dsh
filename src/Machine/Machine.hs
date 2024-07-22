@@ -13,7 +13,7 @@ data Machine = Machine
   { instructionPointer :: Int
   }
 
-fetchInstruction :: Machine -> Code -> (IntermediateCode, Machine)
+fetchInstruction :: Machine -> Code -> (OpCode, Machine)
 fetchInstruction machine code =
   let
     currentIP = instructionPointer machine

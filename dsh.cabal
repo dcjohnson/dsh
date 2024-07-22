@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Compiler.Code
+      Compiler.Errors
       Compiler.Parser
       Compiler.Tokenizer
       Machine.Environment

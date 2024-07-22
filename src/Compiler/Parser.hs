@@ -1,29 +1,83 @@
 module Compiler.Parser
   ( parse
-  , SuccessOrFail(..)
   ) where
 
 import Compiler.Code as C
-import Compiler.Tokenizer
+import Compiler.Tokenizer as TOK
+import Compiler.Errors
 import Data.Array
+import Data.Map.Lazy as LM
 
 data TabType
   = Space
   | Tab
   | None
 
-data SuccessOrFail a b
-  = Success a
-  | Fail b deriving Show 
+data Function = Function
+  { name :: String
+  , stackSize :: Int
+  , parameterCount :: Int
+  , callAddress :: Int
+  }
+
+data Variable = Variable
+
 
 data Parser = Parser
   { tabType :: TabType
   , tabWidth :: Int
   , currentTabLevel :: Int
   , nextTabLevel :: Int
+  , functionTable :: LM.Map String Function
+  , variableTable :: LM.Map String Variable
+  , opCode :: C.Code
+  , tokens :: Tokens
   }
 
-parse :: Tokens -> SuccessOrFail Code String
+functionExists :: Parser -> String -> Bool
+functionExists p s = LM.member s (functionTable p)
+
+updateFunction :: Parser -> String -> Function -> Parser
+updateFunction p s f = (p { functionTable = LM.insert s f (functionTable p) })
+
+pullTokensUntilEndline :: Parser -> SuccessOrFail (Parser, Tokens)
+pullTokensUntilEndline p =
+  let
+    puller parser acc =
+      case (tokens parser) of
+        (EndLine:rest) -> Success ((p { tokens = rest }), acc)
+        (t:rest) -> puller (p { tokens = rest }) (acc ++ [t])
+        _ -> Fail "Expected end of line when none was found"
+  in
+    puller p []
+
+-- THIS IS THE FIRST START OF THE IMPLEMENTATION OF A 2 PASS PARSER
+
+-- parseFunction Parser -> Tokens ->
+parseFunctionSignatureP1 :: Parser -> SuccessOrFail Parser 
+parseFunctionSignatureP1 parser =
+  case pullTokensUntilEndline parser of
+    (Fail s) -> Fail s
+    (Success (newParser, tokens)) ->
+      let 
+        fnName = Prelude.take 2 tokens
+        paramTokens = Prelude.drop 2 tokens
+      in
+        case fnName of
+          [TOK.FunctionToken, Name name] ->
+            if functionExists newParser name
+            then duplicateFunctionError name
+            else 
+              let
+                paramsValid = Prelude.foldr (\p acc -> (isName p) && acc) True paramTokens
+                paramCount = length paramTokens
+              in
+                if paramsValid
+                then Success (updateFunction newParser name (Function { name = name, parameterCount = paramCount }))
+                else invalidParameterList name
+          _ -> nameSymbolAfterFunction
+
+parse :: Tokens -> SuccessOrFail Code
 parse tokens =
   let
     parseHelper _ [] code = Success (code ++ [C.Exit])

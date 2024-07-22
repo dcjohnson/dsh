@@ -1,12 +1,10 @@
 import Compiler.Tokenizer
 import Compiler.Parser
+import Compiler.Errors
 import Machine.Machine
 import Machine.Environment
 import System.IO
 import System.Environment    
-
--- main :: IO ()
--- main = fork True
 
 main :: IO ()
 main = do

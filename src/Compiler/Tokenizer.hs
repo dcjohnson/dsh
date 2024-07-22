@@ -1,8 +1,8 @@
-
 module Compiler.Tokenizer
   ( tokenize,
     Token(..),
-    Tokens
+    Tokens,
+    isName,
   ) where
 
 import Data.Char
@@ -13,7 +13,7 @@ data Token
   | ExecCommand String
   | Exit
   | Return
-  | Function
+  | FunctionToken
   | Namespace
   | NamespaceDescent
   | Name String
@@ -50,6 +50,10 @@ data Token
   | EndLine
   | Comment
   | Invalid String deriving (Show, Eq)
+
+isName :: Token -> Bool
+isName (Name _) = True
+isName _ = False
 
 isInvalid :: Token -> Bool
 isInvalid (Invalid _) = True
@@ -163,7 +167,7 @@ convertToAlphaNumericsToken "elsif" = Elsif
 convertToAlphaNumericsToken "true" = TrueToken
 convertToAlphaNumericsToken "false" = FalseToken
 convertToAlphaNumericsToken "background" = Background
-convertToAlphaNumericsToken "fn" = Function
+convertToAlphaNumericsToken "fn" = FunctionToken
 convertToAlphaNumericsToken "ns" = Namespace
 convertToAlphaNumericsToken "return" = Return
 convertToAlphaNumericsToken "exit" = Exit
@@ -265,7 +269,7 @@ tokenizeChunk s =
       '=' ->
         case rest of
           ('=':rest_p) -> (EqualityCheck, rest_p)
-          _ -> (Assign, rest)
+          _ -> (Invalid s, "")
       '"' -> tokenizeString rest 
       ' ' -> tokenizeSpaceTab s 
       '\t' -> tokenizeTabChar s 

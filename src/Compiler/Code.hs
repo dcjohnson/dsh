@@ -1,5 +1,5 @@
 module Compiler.Code
-  ( IntermediateCode(..),
+  ( OpCode(..),
     Code
   ) where
 
@@ -11,9 +11,9 @@ import Data.Array
 -- unset env var
 -- pushStringLiteral
 -- pushIntegerLiteral
-data IntermediateCode
+data OpCode
   = Exec String [String]
   | Exit
   | InvalidParse deriving (Show)
 
-type Code = Array Int IntermediateCode
+type Code = Array Int OpCode

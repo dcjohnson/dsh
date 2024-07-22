@@ -24,3 +24,9 @@ string interpolation "abd{var}al"
 	var is a string variable
 
 We will have a "main" function entrypoint. If it doesn't have that then it is just a library. 
+
+Functions have stack space for the following:
+
+A location to return a value to. 
+The address of the previous function call so we can reset the stack pointer.
+All parameters and local variables. 
