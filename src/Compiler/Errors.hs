@@ -12,3 +12,4 @@ data SuccessOrFail a
 duplicateFunctionError name = Fail ("Duplicate function definition of function '" ++ name ++ "'")
 invalidParameterList functionName = Fail ("Invalid Parameter List '" ++ functionName ++ "'")
 nameSymbolAfterFunction = Fail "Name symbol doesn't follow function indicator"
+

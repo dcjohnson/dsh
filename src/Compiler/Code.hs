@@ -11,6 +11,11 @@ import Data.Array
 -- unset env var
 -- pushStringLiteral
 -- pushIntegerLiteral
+
+-- Global Arg is just a key into a map.
+-- OffsetArg is an index from the stack pointer. 
+data ExecArg = GlobalArg String | OffsetArg Int 
+
 data OpCode
   = Exec String [String]
   | Exit

@@ -32,6 +32,7 @@ data Parser = Parser
   , variableTable :: LM.Map String Variable
   , opCode :: C.Code
   , tokens :: Tokens
+  , currentScope :: String
   }
 
 functionExists :: Parser -> String -> Bool
@@ -53,7 +54,23 @@ pullTokensUntilEndline p =
 
 -- THIS IS THE FIRST START OF THE IMPLEMENTATION OF A 2 PASS PARSER
 
--- parseFunction Parser -> Tokens ->
+parseExpressionP1 :: Parser -> SuccessOrFail Parser
+parseExpressionP1 parser = 
+
+parseExpressionP2 :: Parser -> SuccessOrFail Parser
+parseExpressionP2 parser = 
+
+parseStatementP1 :: Parser -> SuccessOrFail Parser
+parseStatementP1 parser = 
+
+parseStatementP2 :: Parser -> SuccessOrFail Parser
+parseStatementP2 parser =
+  case (tokens p) of
+    (t:rest) ->
+      case t of
+        (ExecCommand _) -> 
+    
+
 parseFunctionSignatureP1 :: Parser -> SuccessOrFail Parser 
 parseFunctionSignatureP1 parser =
   case pullTokensUntilEndline parser of
