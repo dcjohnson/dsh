@@ -63,6 +63,9 @@ pullTokensUntilEndline p =
 
 -- THIS IS THE FIRST START OF THE IMPLEMENTATION OF A 2 PASS PARSER
 
+-- parses a series of whitespace delimited expressions
+-- a (3 + (2 * a) + 1) "eeee" is a list of expressions.
+-- Algebraic expressions must be enclosed with parenthesis
 parseExpressionListP1 :: Parser -> SuccessOrFail Parser
 parseExpressionListP1 parser = 
 
