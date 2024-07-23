@@ -35,11 +35,20 @@ data Parser = Parser
   , currentScope :: String
   }
 
+getToken :: Parser -> Token
+getToken p = head $ tokens p
+
+hasToken :: Parser -> Bool
+hasToken p = 0 > length (tokens p)
+
+popToken :: Parser -> Parser
+popToken p = p { tokens = tail (tokens p) }
+
 functionExists :: Parser -> String -> Bool
 functionExists p s = LM.member s (functionTable p)
 
 updateFunction :: Parser -> String -> Function -> Parser
-updateFunction p s f = (p { functionTable = LM.insert s f (functionTable p) })
+updateFunction p s f = p { functionTable = LM.insert s f (functionTable p) }
 
 pullTokensUntilEndline :: Parser -> SuccessOrFail (Parser, Tokens)
 pullTokensUntilEndline p =
@@ -54,6 +63,12 @@ pullTokensUntilEndline p =
 
 -- THIS IS THE FIRST START OF THE IMPLEMENTATION OF A 2 PASS PARSER
 
+parseExpressionListP1 :: Parser -> SuccessOrFail Parser
+parseExpressionListP1 parser = 
+
+parseExpressionListP2 :: Parser -> SuccessOrFail Parser
+parseExpressionListP2 parser = 
+
 parseExpressionP1 :: Parser -> SuccessOrFail Parser
 parseExpressionP1 parser = 
 
@@ -61,7 +76,18 @@ parseExpressionP2 :: Parser -> SuccessOrFail Parser
 parseExpressionP2 parser = 
 
 parseStatementP1 :: Parser -> SuccessOrFail Parser
-parseStatementP1 parser = 
+parseStatementP1 parser =
+  case (tokens p) of
+    -- can be assignment or function call
+    ((Name s):_) ->
+      let
+        popedParser = popToken parser
+      in
+        case getToken popedParser of
+          -- if it is an assignment then we must parse the following expression
+          Assign -> (parseExpressionP1 . popToken) popedParser
+          -- 
+          _ -> parseExpressionListP1 popedParser
 
 parseStatementP2 :: Parser -> SuccessOrFail Parser
 parseStatementP2 parser =
@@ -94,6 +120,8 @@ parseFunctionSignatureP1 parser =
                 else invalidParameterList name
           _ -> nameSymbolAfterFunction
 
+
+-- THIS IS THROWAWAY
 parse :: Tokens -> SuccessOrFail Code
 parse tokens =
   let
