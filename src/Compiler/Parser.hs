@@ -20,8 +20,23 @@ data Function = Function
   , callAddress :: Int
   }
 
-data Variable = Variable
+incrementStackSize :: Function -> Function
+incrementStackSize f =
+  let
+    size = stackSize f
+  in
+    f { stackSize = (size + 1) }
+    
 
+data Variable
+  = StringVar
+    { name :: String
+    , value :: String
+    }
+  | IntVar
+    { name :: String
+    , value :: Int
+    }
 
 data Parser = Parser
   { tabType :: TabType
@@ -45,10 +60,51 @@ popToken :: Parser -> Parser
 popToken p = p { tokens = tail (tokens p) }
 
 functionExists :: Parser -> String -> Bool
-functionExists p s = LM.member s (functionTable p)
+functionExists p k = LM.member k (functionTable p)
 
 updateFunction :: Parser -> String -> Function -> Parser
-updateFunction p s f = p { functionTable = LM.insert s f (functionTable p) }
+updateFunction p k f = p { functionTable = LM.insert k f (functionTable p) }
+
+incrementFunctionStackSize :: Parser -> SuccessOrFail Parser
+incrementFunctionStackSize p =
+  let
+    key = currentScope p
+  in
+    case (getFunction p) of
+      (Just f) -> Success $ updateFunction p key (incrementStackSize f)
+      Nothing -> functionNotFound
+
+getFunction :: Parser -> Maybe Function
+getFunction p = LM.lookUP (functionTable p) (currentScope p)
+
+atEndline :: Parser -> Bool
+atEndline p = (getToken p) == EndLine
+
+insertVariable :: Parser -> String -> Variable
+insertVariable p s v = p { variableTable = LM.insert key v (variableTable p) }
+
+addStringVar :: Parser -> String -> Parser
+addStringVar p s =
+  let
+    key = "::" ++ s
+    v = StringVar { name = key, value = s }
+  in
+    insertVariable p key v
+
+addIntVar :: Parser -> Int -> Parser
+addIntVar p i =
+  let
+    key = "::" ++ (show i :: String)
+    v = IntVar { name = key, value = i }
+  in
+    insertVariable p key v
+
+addOpCode :: Parser -> OpCode -> Parser
+addOpCode p oc =
+  let
+    code = opCode p
+  in
+    p { opCode = (oc:code) }
 
 pullTokensUntilEndline :: Parser -> SuccessOrFail (Parser, Tokens)
 pullTokensUntilEndline p =
@@ -67,16 +123,54 @@ pullTokensUntilEndline p =
 -- a (3 + (2 * a) + 1) "eeee" is a list of expressions.
 -- Algebraic expressions must be enclosed with parenthesis
 parseExpressionListP1 :: Parser -> SuccessOrFail Parser
-parseExpressionListP1 parser = 
+parseExpressionListP1 parser =
+  let
+    helper parser =
+      let
+        token = getToken parser
+      in
+        case (isTokenAlgebraic token, atEndline parser) of
+          (True, False) -> 
+            case (parseExpressionP1 parser) of
+              (Success newParser) ->
+                -- we don't need to increment the stack since this is a parameter that is being added
+                -- to the next function. All values needed to compute the pushed value were accounted
+                -- for when the expressions were being evaluated.
+                case atEndline newParser of
+                  True -> Success newParser
+                  False -> helper newParser
+              (Fail f) -> Fail f
+          (False, True) -> Success parser 
+          (False, False) -> invalidTokenInParameterList token
+        
+  in
+    helper parser 
+    
+    
 
 parseExpressionListP2 :: Parser -> SuccessOrFail Parser
 parseExpressionListP2 parser = 
 
+-- algebraic expressions will increase the size of the currently parsed function while being evaluated.
+-- this will be represented. However, the emitted code is only the code that computes the value. 
 parseExpressionP1 :: Parser -> SuccessOrFail Parser
-parseExpressionP1 parser = 
-
+parseExpressionP1 parser =
+  case (getToken parser) of
+    (IntegerToken v) ->
+      Success (addIntVar (popToken parser) v)
+    (StringToken s) ->
+      Success (addStringVar (popToken parser) s)
+      -- we can have an instruction that is just "push <value or register>"
+    _ -> currentlyUnsupportedToken (getToken parser)
+    
 parseExpressionP2 :: Parser -> SuccessOrFail Parser
 parseExpressionP2 parser = 
+  case (getToken parser) of
+    (IntegerToken v) ->
+      Success $ addOpCode (popToken parser) (PushInt v) 
+    (StringToken s) ->
+      Success $ addOpCode (popToken parser) (PushStr s) 
+    _ -> currentlyUnsupportedToken (getToken parser)
 
 parseStatementP1 :: Parser -> SuccessOrFail Parser
 parseStatementP1 parser =
@@ -89,7 +183,7 @@ parseStatementP1 parser =
         case getToken popedParser of
           -- if it is an assignment then we must parse the following expression
           Assign -> (parseExpressionP1 . popToken) popedParser
-          -- 
+          -- add extra stack space for the var it is ultimately written to. 
           _ -> parseExpressionListP1 popedParser
 
 parseStatementP2 :: Parser -> SuccessOrFail Parser

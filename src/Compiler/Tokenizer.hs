@@ -51,6 +51,13 @@ data Token
   | Comment
   | Invalid String deriving (Show, Eq)
 
+isTokenAlgebraic :: Token -> Bool
+isTokenAlgebraic (IntegerToken _) = True
+isTokenAlgebraic (StringToken _) = True
+isTokenAlgebraic (Name _) = True
+isTokenAlgebraic BeginParen = True
+isTokenAlgebraic _ = False
+
 isName :: Token -> Bool
 isName (Name _) = True
 isName _ = False

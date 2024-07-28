@@ -18,6 +18,9 @@ data ExecArg = GlobalArg String | OffsetArg Int
 
 data OpCode
   = Exec String [String]
+  | PushStr String
+  | PushInt Int
+  | PushReg String
   | Exit
   | InvalidParse deriving (Show)
 
