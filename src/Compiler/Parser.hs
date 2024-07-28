@@ -15,19 +15,40 @@ data TabType
 
 data Function = Function
   { name :: String
-  , stackSize :: Int
   , parameterCount :: Int
   , callAddress :: Int
   }
 
-incrementStackSize :: Function -> Function
-incrementStackSize f =
-  let
-    size = stackSize f
-  in
-    f { stackSize = (size + 1) }
-    
+data ShuntingYard = ShuntingYard
+  { opStack :: Tokens
+  , outputStack :: Tokens
+  }
 
+pushOutputToken :: ShuntingYard -> Token -> ShuntingYard
+pushOutputToken sy t = sy { outputStack = (t:(outputStack sy)) }
+    
+pushOpToken :: ShuntingYard -> Token -> ShuntingYard
+pushOpToken sy t = sy { opStack = (t:(opStack sy)) }
+
+-- pushToken :: ShuntingYard -> Token -> ShuntingYard
+-- pushToken sy t =
+--   case (isTokenAlgebraic t, isTokenOperator t) of
+--     (True, _) -> pushOutputToken sy t
+--     (_, True) -> pushOpToken sy t
+--     (_, _) -> sy
+
+-- Returns true if the provided token has a higher precidence than
+-- the current top of the stack.
+isTokenHigherPrecedence :: ShuntingYard -> Token -> Just Bool
+isTokenHigherPrecedence sy t =
+  let
+    stPrecidence = operatorPrecidence $ head $ opStack sy
+    tPrecidence = operatorPrecidence t
+  in
+    case (stPrecidence, tPrecidence) of 
+      (Just stP, Just tP) -> Just $ tP > stP
+      _ -> Nothing
+      
 data Variable
   = StringVar
     { name :: String
@@ -48,7 +69,9 @@ data Parser = Parser
   , opCode :: C.Code
   , tokens :: Tokens
   , currentScope :: String
+  , shuntingYard :: ShuntingYard
   }
+
 
 getToken :: Parser -> Token
 getToken p = head $ tokens p
@@ -129,7 +152,9 @@ pullTokensUntilEndline p =
 -- even if it is ephemeral, will have OpCodes emitted while the expression is being evaluated.
 -- It is only after the expression list is fully evaluated, that the entire resulting stack will
 -- be popped and "push" OpCodes will be generated for each of those values as long as they match
--- the function signature. 
+-- the function signature.
+-- There is no need to keep track of the size of the functions stack while parsing. It can be
+-- updated on the fly. Code emitted will just be "add <label> <label>"
 -- UPDATE UPDATE
 parseExpressionListP1 :: Parser -> SuccessOrFail Parser
 parseExpressionListP1 parser =

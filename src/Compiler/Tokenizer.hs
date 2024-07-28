@@ -58,6 +58,39 @@ isTokenAlgebraic (Name _) = True
 isTokenAlgebraic BeginParen = True
 isTokenAlgebraic _ = False
 
+isTokenOperator :: Token -> Bool
+isTokenOperator BeginParen = True
+isTokenOperator EndParen = True
+isTokenOperator GreaterThan = True
+isTokenOperator LessThan = True
+isTokenOperator GreaterThanOrEqual = True
+isTokenOperator LessThanOrEqual = True
+isTokenOperator EqualityCheck = True
+isTokenOperator InequalityCheck = True
+isTokenOperator Multiplication = True
+isTokenOperator Addition = True
+isTokenOperator Subtraction = True
+isTokenOperator Division = True
+isTokenOperator Modulo = True
+isTokenOperator _ = False
+
+operatorPrecidence :: Token -> Maybe Int
+isTokenOperator BeginParen = Just 0
+isTokenOperator EndParen = Just 0
+isTokenOperator GreaterThan = Just 5
+isTokenOperator LessThan = Just 5
+isTokenOperator GreaterThanOrEqual = Just 5
+isTokenOperator LessThanOrEqual = Just 5
+isTokenOperator EqualityCheck = Just 4
+isTokenOperator InequalityCheck = Just 5
+isTokenOperator Multiplication = Just 7
+isTokenOperator Addition = Just 6
+isTokenOperator Subtraction = Just 6
+isTokenOperator Division = Just 7
+isTokenOperator Modulo = Just 7
+isTokenOperator _ = Nothing
+
+
 isName :: Token -> Bool
 isName (Name _) = True
 isName _ = False
