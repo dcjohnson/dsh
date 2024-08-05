@@ -75,20 +75,20 @@ isTokenOperator Modulo = True
 isTokenOperator _ = False
 
 operatorPrecidence :: Token -> Maybe Int
-isTokenOperator BeginParen = Just 0
-isTokenOperator EndParen = Just 0
-isTokenOperator GreaterThan = Just 5
-isTokenOperator LessThan = Just 5
-isTokenOperator GreaterThanOrEqual = Just 5
-isTokenOperator LessThanOrEqual = Just 5
-isTokenOperator EqualityCheck = Just 4
-isTokenOperator InequalityCheck = Just 5
-isTokenOperator Multiplication = Just 7
-isTokenOperator Addition = Just 6
-isTokenOperator Subtraction = Just 6
-isTokenOperator Division = Just 7
-isTokenOperator Modulo = Just 7
-isTokenOperator _ = Nothing
+operatorPrecidence BeginParen = Just 0
+operatorPrecidence EndParen = Just 0
+operatorPrecidence GreaterThan = Just 5
+operatorPrecidence LessThan = Just 5
+operatorPrecidence GreaterThanOrEqual = Just 5
+operatorPrecidence LessThanOrEqual = Just 5
+operatorPrecidence EqualityCheck = Just 4
+operatorPrecidence InequalityCheck = Just 5
+operatorPrecidence Multiplication = Just 7
+operatorPrecidence Addition = Just 6
+operatorPrecidence Subtraction = Just 6
+operatorPrecidence Division = Just 7
+operatorPrecidence Modulo = Just 7
+operatorPrecidence _ = Nothing
 
 
 isName :: Token -> Bool
